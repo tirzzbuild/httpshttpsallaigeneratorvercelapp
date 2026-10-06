@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Creative Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#15131C; --surface:#1F1B29; --surface-2:#2A2536; --line:#3B3548;
+  --text:#F1EEF8; --muted:#AAA4BD; --primary:#FFC857; --on-primary:#1A1405;
+  --warn-bg:rgba(255,200,87,.12); --shadow:0 8px 30px rgba(0,0,0,.35);
+}
+:root[data-theme="dark"]{
+  --bg:#15131C; --surface:#1F1B29; --surface-2:#2A2536; --line:#3B3548;
+  --text:#F1EEF8; --muted:#AAA4BD; --primary:#FFC857; --on-primary:#1A1405;
+  --warn-bg:rgba(255,200,87,.12); --shadow:0 8px 30px rgba(0,0,0,.35);
+}
+:root[data-theme="light"]{
+  --bg:#F3F4FA; --surface:#FFFFFF; --surface-2:#ECEDF6; --line:#D3D6E8;
+  --text:#1B1830; --muted:#5A5675; --primary:#3D2BD9; --on-primary:#FFFFFF;
+  --warn-bg:rgba(61,43,217,.08); --shadow:0 8px 30px rgba(40,30,120,.10);
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 'Instrument Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;padding-bottom:92px;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:'Bricolage Grotesque','Instrument Sans',system-ui,sans-serif;line-height:1.1;margin:0;letter-spacing:-.02em;font-weight:700}
+p{margin:0}
+a{color:inherit}
+.wrap{width:100%;max-width:1080px;margin:0 auto;padding:0 16px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--primary);color:var(--on-primary);padding:10px 14px;border-radius:10px;z-index:100}
+.skip:focus{left:8px}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.ic{flex:none}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:12px;min-height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:700;font-size:19px;letter-spacing:-.02em;margin-right:auto}
+.mark{width:34px;height:34px;border-radius:11px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center}
+.dnav{display:none;gap:4px}
+.dnav a{padding:10px 14px;border-radius:12px;text-decoration:none;color:var(--muted);font-weight:500}
+.dnav a:hover{background:var(--surface-2);color:var(--text)}
+.dnav a[aria-current="page"]{background:var(--surface-2);color:var(--text)}
+.icon-btn{width:48px;height:48px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--text);display:grid;place-items:center;cursor:pointer;transition:background .15s}
+.icon-btn:hover{background:var(--surface-2)}
+.fav[aria-pressed="true"]{color:var(--primary)}
+.fav[aria-pressed="true"] svg{fill:currentColor}
+
+/* bottom nav */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bnav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:62px;text-decoration:none;color:var(--muted);font-size:12px;font-weight:500}
+.bnav a[aria-current="page"]{color:var(--primary)}
+@media(min-width:760px){.dnav{display:flex}.bnav{display:none}body{padding-bottom:40px}}
+
+/* buttons */
+.btn{min-height:48px;padding:0 18px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 15px/1 'Instrument Sans',system-ui,sans-serif;border:1px solid var(--line);background:var(--surface-2);color:var(--text);cursor:pointer;text-decoration:none;transition:filter .15s,transform .1s}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--primary);color:var(--on-primary);border-color:transparent}
+.btn.ghost{background:transparent}
+.btn.big{min-height:56px;font-size:16px;width:100%}
+
+/* hero */
+.hero{display:grid;gap:28px;padding:34px 0 18px}
+.hero h1{font-size:clamp(34px,7vw,60px);max-width:14ch}
+.hero .sub{color:var(--muted);font-size:18px;max-width:46ch;margin-top:14px}
+.hero .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.demo{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.demo::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--da,var(--primary));transition:background .3s}
+.demo-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding-left:6px}
+.demo-tabs button{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font:500 14px 'Instrument Sans',system-ui,sans-serif;cursor:pointer}
+.demo-tabs button[aria-selected="true"]{background:var(--surface-2);color:var(--text);border-color:var(--da,var(--primary))}
+.demo-idea{padding-left:6px;color:var(--muted);font-size:14px;margin-bottom:8px}
+.demo-idea b{color:var(--text);font-weight:600}
+.demo pre{margin:0 0 0 6px;white-space:pre-wrap;word-break:break-word;font:400 14px/1.65 'JetBrains Mono',ui-monospace,Menlo,monospace;min-height:7.6em;animation:fade .45s ease}
+.demo-note{padding-left:6px;margin-top:10px;color:var(--muted);font-size:13px}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(min-width:860px){.hero{grid-template-columns:1.05fr 1fr;align-items:center;padding:56px 0 28px}}
+
+/* toolbar */
+.sec-h{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:34px 0 14px}
+.sec-h h2{font-size:26px}
+.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:5px}
+.tabs button{flex:1;min-height:48px;border-radius:12px;border:0;background:transparent;color:var(--muted);font:600 15px 'Instrument Sans',system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.tabs button[aria-selected="true"]{background:var(--primary);color:var(--on-primary)}
+.search{position:relative;margin-top:12px}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+input[type=search],input[type=text],textarea,select{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:13px 14px;font:400 16px/1.4 'Instrument Sans',system-ui,sans-serif;min-height:50px}
+.search input{padding-left:44px}
+textarea{min-height:100px;resize:vertical}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 22px,calc(100% - 15px) 22px;background-size:5px 5px;background-repeat:no-repeat;padding-right:38px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{min-height:42px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:500 14px 'Instrument Sans',system-ui,sans-serif;cursor:pointer;transition:background .15s}
+.chip:hover{background:var(--surface-2)}
+.chip[aria-pressed="true"],.chip[aria-checked="true"]{background:var(--primary);color:var(--on-primary);border-color:transparent;font-weight:600}
+
+/* cards */
+.grid{display:grid;gap:14px;margin-top:16px;grid-template-columns:repeat(auto-fill,minmax(285px,1fr))}
+.card{--a:#888;position:relative;display:flex;flex-direction:column;gap:10px;padding:16px 16px 16px 20px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(135deg,color-mix(in srgb,var(--a) 16%,var(--surface)),var(--surface) 62%);overflow:hidden;transition:transform .15s,border-color .15s}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--a)}
+.card:hover{transform:translateY(-2px);border-color:var(--a)}
+.card-top{display:flex;align-items:center;gap:12px}
+.sw{width:46px;height:46px;border-radius:50%;background:var(--a);color:#0D0B14;display:grid;place-items:center;font:700 15px 'Bricolage Grotesque',system-ui,sans-serif;flex:none}
+.ct{flex:1;min-width:0}
+.ct h3{font-size:20px}
+.badge{display:inline-flex;align-items:center;gap:5px;margin-top:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.card .tg{font-size:15px}
+.card .sn{font-size:13px;color:var(--muted)}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+.card-actions .btn{flex:1 1 130px}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:18px}
+
+/* builder */
+.back{display:inline-flex;align-items:center;gap:8px;min-height:44px;text-decoration:none;color:var(--muted);font-weight:500;margin-top:14px}
+.b-head{display:flex;align-items:center;gap:14px;margin:6px 0 16px}
+.b-head h1{font-size:clamp(26px,5vw,38px)}
+.b-head p{color:var(--muted)}
+.b-grid{display:grid;gap:18px}
+@media(min-width:900px){.b-grid{grid-template-columns:1fr 1fr;align-items:start}.b-out{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px}
+.field{margin-bottom:18px}
+.field>label,.field>.lbl{display:block;font-weight:600;margin-bottom:8px;font-size:15px}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{min-height:50px;flex:1 1 68px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font:500 15px 'Instrument Sans',system-ui,sans-serif;cursor:pointer}
+.seg button[aria-checked="true"]{background:var(--primary);color:var(--on-primary);border-color:transparent;font-weight:700}
+.two{display:grid;gap:14px}
+@media(min-width:520px){.two{grid-template-columns:1fr 1fr}}
+details.tips{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:4px 16px;margin-bottom:16px}
+details.tips summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:600}
+details.tips ul{margin:0 0 12px;padding-left:20px;color:var(--muted)}
+details.tips li{margin-bottom:6px}
+.warn{display:flex;gap:12px;background:var(--warn-bg);border-left:4px solid var(--primary);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:14px}
+.warn svg{color:var(--primary);margin-top:2px}
+.pbox{border:1px solid var(--line);background:var(--bg);border-radius:16px;padding:14px;margin-bottom:12px}
+.plabel{font-weight:600;font-size:14px;margin-bottom:8px;color:var(--muted)}
+.pbox pre{margin:0;white-space:pre-wrap;word-break:break-word;font:400 14px/1.65 'JetBrains Mono',ui-monospace,Menlo,monospace}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1 1 140px}
+
+/* wizard */
+.wz{max-width:640px;margin:0 auto;padding-top:20px}
+.wz h1{font-size:clamp(26px,5vw,36px);margin:8px 0 16px}
+.prog{display:flex;gap:6px;margin-bottom:6px}
+.prog i{flex:1;height:5px;border-radius:5px;background:var(--surface-2)}
+.prog i.on{background:var(--primary)}
+.opts{display:grid;gap:10px}
+.opt{min-height:58px;text-align:left;padding:12px 16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:500 16px 'Instrument Sans',system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--primary);background:var(--surface-2)}
+.opt small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.res{margin-top:12px;display:grid;gap:12px}
+.top-pick{border-radius:22px}
+.why{color:var(--muted);font-size:14px}
+
+/* table */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:18px;background:var(--surface);margin-top:16px}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);font-size:14px}
+tr:last-child th,tr:last-child td{border-bottom:0}
+thead th{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:17px}
+tbody th{color:var(--muted);font-weight:600;width:112px}
+td ul{margin:0;padding-left:16px}
+.dur{display:inline-block;margin:0 4px 4px 0;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--surface-2)}
+.dur.ok{color:var(--text)}
+.dur.no{color:var(--muted);text-decoration:line-through}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+/* history */
+.hitem{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:12px}
+.hmeta{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);margin-bottom:8px;flex-wrap:wrap}
+.hitem pre{margin:0 0 10px;white-space:pre-wrap;word-break:break-word;font:400 13px/1.6 'JetBrains Mono',ui-monospace,Menlo,monospace;max-height:9.5em;overflow:hidden}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:90vw}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:760px){#toast{bottom:28px}}
+.note{font-size:13px;color:var(--muted);margin-top:18px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#app">Lewati ke konten</a>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#/" aria-label="AI Creative Hub, beranda">
+      <span class="mark" id="logo-mark"></span><span>AI Creative Hub</span>
+    </a>
+    <nav class="dnav" aria-label="Navigasi utama">
+      <a href="#/" data-nav="home">Beranda</a>
+      <a href="#/rekomendasi" data-nav="rekomendasi">Rekomendasi</a>
+      <a href="#/bandingkan" data-nav="bandingkan">Bandingkan</a>
+      <a href="#/riwayat" data-nav="riwayat">Riwayat &amp; Favorit</a>
+    </nav>
+    <button class="icon-btn" id="theme" type="button" aria-label="Ganti tema terang atau gelap"></button>
+  </div>
+</header>
+<main id="app" class="wrap" tabindex="-1"></main>
+<nav class="bnav" aria-label="Navigasi bawah" id="bnav"></nav>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mem={};
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);if(v!==null)return JSON.parse(v);}catch(e){} return (k in mem)?mem[k]:d;},
+  set(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const pick=(a,s)=>a[Math.abs(s)%a.length];
+const J=(...a)=>a.filter(Boolean).join(' ');
+const JN=(...a)=>a.filter(Boolean).join('\n');
+
+const ICONS={
+ home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+ sparkles:'<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+ columns:'<rect x="3" y="3" width="7" height="18" rx="1.5"/><rect x="14" y="3" width="7" height="18" rx="1.5"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+ heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+ moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+ copy:'<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+ refresh:'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+ external:'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+ search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+ trash:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+ back:'<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+ image:'<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>',
+ video:'<path d="m16 13 5.22 3.48a.5.5 0 0 0 .78-.42V7.94a.5.5 0 0 0-.78-.42L16 11"/><rect x="2" y="6" width="14" height="12" rx="2"/>'
+};
+const ic=(n,sz=20)=>'<svg class="ic" width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICONS[n]+'</svg>';
+
+/* ---------- data: tools ---------- */
+const TOOLS=[
+{id:'chatgpt',ini:'GP',name:'ChatGPT Images',cat:'image',tagline:'Gambar realistis, edit foto, desain dari prompt',accent:'#19C37D',url:'https://chatgpt.com',tags:['realistis','edit','teks'],fmt:'natural',
+ styleNote:'Kalimat deskriptif seperti bercerita',bestFor:'Gambar serbaguna, edit foto lewat percakapan, dan desain sederhana',
+ pros:['Paham bahasa sehari-hari','Bisa direvisi bertahap lewat chat','Cukup baik untuk teks pendek'],
+ tips:['Tulis seperti bercerita: subjek, tempat, suasana, lalu detail.','Untuk edit, unggah foto lalu sebutkan apa yang diubah dan apa yang dipertahankan.','Revisi bertahap lebih baik daripada satu prompt yang terlalu panjang.'],
+ extra:{label:'Detail tambahan (opsional)',ph:'mis. warna dominan, objek di latar belakang'}},
+{id:'midjourney',ini:'MJ',name:'Midjourney',cat:'image',tagline:'Anime, fantasy, cinematic, artwork',accent:'#9A8CFF',url:'https://www.midjourney.com',tags:['seni','sinematik'],fmt:'mj',
+ styleNote:'Kata kunci dipisah koma + parameter --ar --v',bestFor:'Anime, fantasi, cinematic, dan artwork yang estetik',
+ pros:['Estetika kuat dan konsisten','Parameter detail (--ar, --v, --style)','Bagus untuk konsep visual dan moodboard'],
+ tips:['Pakai kata kunci pendek dipisah koma, bukan kalimat panjang.','Taruh parameter seperti --ar dan --v di akhir prompt.','Tambahkan --style raw untuk hasil yang lebih fotografis.'],
+ extra:{label:'Kata kunci tambahan (opsional)',ph:'mis. bokeh, film grain, pastel palette'}},
+{id:'nano-banana',ini:'NB',name:'Nano Banana',cat:'image',tagline:'Edit foto + mempertahankan karakter/objek',accent:'#FFD23F',url:'https://gemini.google.com',tags:['edit','karakter','realistis'],fmt:'nano',
+ styleNote:'Instruksi edit + apa yang harus tetap sama',bestFor:'Edit foto dan menjaga wajah, karakter, atau produk tetap konsisten',
+ pros:['Pandai menjaga identitas karakter/objek','Edit lokal tanpa merusak bagian lain','Mudah dipakai lewat instruksi singkat'],
+ tips:['Selalu sebutkan apa yang harus dipertahankan (wajah, pakaian, latar).','Ubah satu hal per instruksi agar hasil terkontrol.','Unggah foto referensi yang jelas dan terang.'],
+ extra:{label:'Yang harus dipertahankan',ph:'mis. wajah, rambut, dan pakaian karakter'}},
+{id:'flux',ini:'FX',name:'FLUX',cat:'image',tagline:'Fotorealistik, detail tinggi',accent:'#5CC8FF',url:'https://bfl.ai',tags:['realistis'],fmt:'flux',
+ styleNote:'Deskripsi fotografi: lensa, cahaya, tekstur',bestFor:'Foto realistis dengan detail dan tekstur tinggi',
+ pros:['Hasil fotorealistik tajam','Detail kulit dan material natural','Mengikuti prompt dengan baik'],
+ tips:['Sebut gaya fotografi: lensa, bukaan, jenis cahaya.','Deskripsikan tekstur (kulit, kain, logam) untuk kesan nyata.','Gunakan kalimat natural, bukan daftar tag.'],
+ extra:{label:'Detail tambahan (opsional)',ph:'mis. rambut basah, jaket kulit, latar kota'}},
+{id:'ideogram',ini:'ID',name:'Ideogram',cat:'image',tagline:'Poster, logo, gambar dengan tulisan',accent:'#FF7AA8',url:'https://ideogram.ai',tags:['teks','komersial'],fmt:'ideogram',
+ styleNote:'Teks wajib ditulis dalam tanda kutip',bestFor:'Poster, logo, dan gambar yang memuat tulisan',
+ pros:['Teks di gambar lebih akurat','Bagus untuk tipografi dan layout','Cocok untuk poster dan branding'],
+ tips:['Tulis teks persis di dalam tanda kutip.','Batasi teks maksimal beberapa kata agar ejaan akurat.','Deskripsikan tipografi: tebal, serif, tangan, neon.'],
+ extra:{label:'Teks yang harus muncul di gambar',ph:'mis. GRAND OPENING'}},
+{id:'leonardo',ini:'LA',name:'Leonardo AI',cat:'image',tagline:'Karakter, game, concept art',accent:'#C77DFF',url:'https://leonardo.ai',tags:['karakter','seni'],fmt:'leo',
+ styleNote:'Deskripsi karakter dan concept art',bestFor:'Desain karakter, aset game, dan concept art',
+ pros:['Kuat untuk karakter dan aset game','Banyak model dan gaya','Cocok untuk iterasi konsep'],
+ tips:['Deskripsikan pose, kostum, dan siluet karakter.','Sebut jenis aset: character sheet, environment, item.','Iterasi beberapa variasi sebelum memilih.'],
+ extra:{label:'Detail karakter/objek (opsional)',ph:'mis. armor perak, jubah merah, tongkat kristal'}},
+{id:'firefly',ini:'FF',name:'Adobe Firefly',cat:'image',tagline:'Desain dan kebutuhan komersial',accent:'#FF6B5E',url:'https://firefly.adobe.com',tags:['komersial','iklan'],fmt:'natural',
+ styleNote:'Kalimat jelas, bebas logo & merek',bestFor:'Desain dan materi komersial yang ingin aman dipakai',
+ pros:['Dirancang untuk penggunaan komersial','Terhubung dengan ekosistem Adobe','Hasil bersih dan rapi'],
+ tips:['Hindari menyebut merek atau karakter berhak cipta.','Sisakan ruang kosong untuk teks atau copy.','Gunakan deskripsi komposisi yang jelas.'],
+ extra:{label:'Detail tambahan (opsional)',ph:'mis. ruang kosong di kanan untuk judul'}},
+{id:'veo',ini:'V3',name:'Google Veo 3.1',cat:'video',tagline:'Video realistis + suara/dialog',accent:'#6EA8FF',url:'https://deepmind.google/models/veo/',tags:['realistis','suara','sinematik'],fmt:'veo',maxDur:8,durText:'±8 detik per klip',
+ styleNote:'Adegan + kamera + dialog & audio',bestFor:'Video realistis lengkap dengan suara, efek, dan dialog',
+ pros:['Audio dan dialog ikut dibuat','Gerakan dan fisika terasa nyata','Mengerti arahan kamera'],
+ tips:['Tulis dialog dalam tanda kutip dan sebut siapa yang bicara.','Deskripsikan suara latar secara terpisah dari dialog.','Satu klip, satu aksi utama.'],
+ extra:{label:'Dialog / suara',ph:'mis. Pria: "Selamat pagi!" + suara ombak'}},
+{id:'kling',ini:'K3',name:'Kling 3.0',cat:'video',tagline:'Video cinematic, karakter bergerak',accent:'#3DDBD0',url:'https://klingai.com',tags:['sinematik','karakter'],fmt:'kling',maxDur:15,durText:'±15 detik per klip',
+ styleNote:'Subjek + gerakan + kamera sinematik',bestFor:'Video sinematik dengan gerakan karakter yang halus',
+ pros:['Gerakan karakter natural','Tampilan sinematik','Mendukung klip lebih panjang'],
+ tips:['Deskripsikan gerakan subjek secara spesifik.','Sebut satu gerakan kamera per shot.','Pakai gambar awal untuk menjaga konsistensi karakter.'],
+ extra:{label:'Detail gerakan (opsional)',ph:'mis. rambut tertiup angin, langkah pelan'}},
+{id:'runway',ini:'RW',name:'Runway Gen-4.5',cat:'video',tagline:'Film, iklan, editing profesional',accent:'#A3E635',url:'https://runwayml.com',tags:['iklan','sinematik','komersial'],fmt:'runway',maxDur:10,durText:'±10 detik per klip',
+ styleNote:'Singkat, fokus pada gerakan & kamera',bestFor:'Film, iklan, dan alur kerja editing profesional',
+ pros:['Kontrol kamera dan gerakan','Alat editing video lengkap','Cocok untuk iklan dan produksi'],
+ tips:['Deskripsikan gerakan, bukan tampilan statis gambar awal.','Buat prompt singkat dan jelas.','Pakai image-to-video untuk produk agar tampilan tetap sama.'],
+ extra:{label:'Detail produk/adegan (opsional)',ph:'mis. botol parfum berputar di atas marmer'}},
+{id:'seedance',ini:'SD',name:'Seedance',cat:'video',tagline:'Adegan panjang/multi-shot',accent:'#FF9F43',url:'https://seed.bytedance.com',tags:['sinematik','karakter'],fmt:'seedance',maxDur:12,durText:'±12 detik per klip',
+ styleNote:'Daftar shot berurutan + konsistensi karakter',bestFor:'Adegan panjang dengan beberapa shot yang menyambung',
+ pros:['Kuat untuk multi-shot','Karakter tetap konsisten antar shot','Alur adegan lebih terstruktur'],
+ tips:['Tulis shot berurutan: Shot 1, Shot 2, Shot 3.','Ulangi ciri karakter agar tetap konsisten.','Sebut transisi antar shot.'],
+ extra:{label:'Ciri karakter (opsional)',ph:'mis. gadis berjaket kuning, rambut pendek'}},
+{id:'pika',ini:'PK',name:'Pika',cat:'video',tagline:'Video pendek & efek kreatif',accent:'#FF6FD8',url:'https://pika.art',tags:['efek'],fmt:'pika',maxDur:10,durText:'±10 detik per klip',
+ styleNote:'Singkat + efek kreatif',bestFor:'Klip pendek untuk media sosial dengan efek kreatif',
+ pros:['Cepat untuk klip pendek','Efek kreatif siap pakai','Mudah untuk konten sosial media'],
+ tips:['Pakai prompt pendek dan padat.','Sebut efek yang diinginkan secara jelas.','Cocok dimulai dari foto yang sudah ada.'],
+ extra:{label:'Efek yang diinginkan (opsional)',ph:'mis. objek meleleh, ledakan confetti'}},
+{id:'heygen',ini:'HG',name:'HeyGen',cat:'video',tagline:'Avatar/orang berbicara',accent:'#5B8CFF',url:'https://www.heygen.com',tags:['avatar','suara','iklan'],fmt:'heygen',maxDur:60,durText:'hingga ±60 detik (avatar)',
+ styleNote:'Deskripsi avatar + naskah ucapan',bestFor:'Video presenter, penjelasan produk, dan konten edukasi',
+ pros:['Avatar berbicara dengan lip-sync','Banyak bahasa dan suara','Cocok untuk presentasi dan iklan'],
+ tips:['Tulis naskah persis seperti yang diucapkan.','Gunakan kalimat pendek agar jeda natural.','Sebut nada bicara: ramah, tegas, santai.'],
+ extra:{label:'Naskah yang diucapkan avatar',ph:'mis. Halo semua, hari ini kita bahas tiga tips hemat energi.'}},
+{id:'luma',ini:'LM',name:'Luma',cat:'video',tagline:'Cinematic & gerakan kamera',accent:'#F5E663',url:'https://lumalabs.ai',tags:['sinematik','kamera','efek'],fmt:'luma',maxDur:9,durText:'±9 detik per klip',
+ styleNote:'Gerakan kamera jadi fokus utama',bestFor:'Video sinematik dengan gerakan kamera yang halus',
+ pros:['Gerakan kamera halus','Tampilan sinematik','Bagus untuk transisi dan shot dramatis'],
+ tips:['Sebut gerakan kamera di awal prompt.','Gunakan satu gerakan kamera per klip.','Tambahkan kata “smooth” agar gerakan tidak patah.'],
+ extra:{label:'Detail tambahan (opsional)',ph:'mis. kabut tipis, daun beterbangan'}}
+];
+const TOOL=id=>TOOLS.find(t=>t.id===id);
+
+const FILTERS=[
+ {k:'realistis',l:'Realistis'},{k:'seni',l:'Anime & seni'},{k:'teks',l:'Logo & teks'},{k:'edit',l:'Edit foto'},
+ {k:'karakter',l:'Karakter'},{k:'iklan',l:'Iklan'},{k:'sinematik',l:'Sinematik'},{k:'avatar',l:'Avatar'},
+ {k:'suara',l:'Suara'},{k:'efek',l:'Efek kreatif'},{k:'kamera',l:'Gerakan kamera'},{k:'komersial',l:'Komersial'}
+];
+
+/* ---------- data: options (id + en) ---------- */
+const AUTO={k:'auto',l:'Otomatis',en:'',id:''};
+const STYLES=[AUTO,
+ {k:'realistis',l:'Realistis',en:'photorealistic',id:'fotorealistik'},
+ {k:'cinematic',l:'Cinematic',en:'cinematic film look',id:'tampilan film sinematik'},
+ {k:'anime',l:'Anime',en:'anime style',id:'gaya anime'},
+ {k:'3d',l:'3D',en:'3D render with soft global illumination',id:'render 3D dengan pencahayaan lembut'},
+ {k:'minimalis',l:'Minimalis',en:'minimalist, clean composition',id:'minimalis dengan komposisi bersih'},
+ {k:'ilustrasi',l:'Ilustrasi',en:'digital illustration',id:'ilustrasi digital'},
+ {k:'retro',l:'Retro',en:'vintage retro with film grain',id:'retro vintage dengan grain film'},
+ {k:'fantasi',l:'Fantasi',en:'epic fantasy art',id:'seni fantasi epik'}];
+const MOODS=[AUTO,
+ {k:'ceria',l:'Ceria',en:'cheerful',id:'ceria'},
+ {k:'tenang',l:'Tenang',en:'calm and peaceful',id:'tenang dan damai'},
+ {k:'dramatis',l:'Dramatis',en:'dramatic',id:'dramatis'},
+ {k:'misterius',l:'Misterius',en:'mysterious and moody',id:'misterius'},
+ {k:'energik',l:'Energik',en:'energetic',id:'energik'},
+ {k:'hangat',l:'Hangat & nostalgia',en:'warm and nostalgic',id:'hangat dan nostalgia'},
+ {k:'mewah',l:'Elegan & mewah',en:'elegant and luxurious',id:'elegan dan mewah'}];
+const LIGHTS=[AUTO,
+ {k:'golden',l:'Golden hour',en:'warm golden hour sunlight',id:'cahaya matahari keemasan'},
+ {k:'studio',l:'Studio softbox',en:'soft studio lighting',id:'pencahayaan studio yang lembut'},
+ {k:'neon',l:'Neon malam',en:'neon night lighting',id:'cahaya neon di malam hari'},
+ {k:'backlight',l:'Backlight / rim light',en:'backlit with a glowing rim light',id:'cahaya dari belakang dengan rim light'},
+ {k:'mendung',l:'Siang mendung lembut',en:'soft overcast daylight',id:'cahaya siang mendung yang lembut'},
+ {k:'kontras',l:'Dramatis kontras tinggi',en:'high-contrast dramatic lighting',id:'pencahayaan dramatis kontras tinggi'}];
+const CAMS=[AUTO,
+ {k:'statis',l:'Statis',en:'static locked-off camera',id:'kamera diam (statis)'},
+ {k:'dolly',l:'Dolly in',en:'slow dolly-in toward the subject',id:'dolly in perlahan ke arah subjek'},
+ {k:'pan',l:'Pan kiri ke kanan',en:'smooth pan from left to right',id:'pan halus dari kiri ke kanan'},
+ {k:'orbit',l:'Orbit',en:'slow orbit around the subject',id:'orbit perlahan mengelilingi subjek'},
+ {k:'tracking',l:'Tracking',en:'tracking shot following the subject',id:'tracking shot mengikuti subjek'},
+ {k:'drone',l:'Drone aerial',en:'aerial drone shot rising upward',id:'drone aerial naik ke atas'},
+ {k:'handheld',l:'Handheld',en:'handheld camera with subtle shake',id:'kamera genggam dengan getaran halus'}];
+const RATIOS=['1:1','16:9','9:16','4:5'];
+const RT={'1:1':{en:'square 1:1',id:'persegi 1:1'},'16:9':{en:'wide 16:9 landscape',id:'lanskap lebar 16:9'},'9:16':{en:'vertical 9:16 portrait',id:'potret vertikal 9:16'},'4:5':{en:'4:5 portrait',id:'potret 4:5'}};
+const DURS=[5,8,12,15];
+const LB={en:{style:'Style',mood:'Mood',light:'Lighting',extra:'Additional details',look:'Look',audio:'Audio'},id:{style:'Gaya',mood:'Suasana',light:'Pencahayaan',extra:'Detail tambahan',look:'Tampilan',audio:'Audio'}};
+
+const BOOST={
+ chatgpt:{en:['Use natural, believable textures and accurate proportions.','Keep the details crisp and the composition easy to read.','Make it look polished, with realistic materials and depth.'],
+          id:['Gunakan tekstur yang natural dan proporsi yang akurat.','Buat detail tajam dan komposisi mudah dibaca.','Buat hasil terlihat rapi dengan material realistis dan kedalaman.']},
+ firefly:{en:['Commercial-ready, clean composition with copy space; no logos or trademarks.','Professional stock-quality look with balanced colors and negative space for text.','Brand-safe and polished, with clear space for a headline.'],
+          id:['Siap komersial, komposisi bersih dengan ruang kosong untuk teks; tanpa logo atau merek dagang.','Tampilan profesional berkualitas stok dengan warna seimbang dan ruang kosong untuk teks.','Aman untuk brand dan rapi, dengan ruang kosong untuk judul.']},
+ mj:{en:['highly detailed','intricate details, volumetric light','award-winning composition, sharp focus'],
+     id:['sangat detail','detail rumit, cahaya volumetrik','komposisi pemenang penghargaan, fokus tajam']},
+ flux:{en:['shot on an 85mm f/1.8 lens, shallow depth of field','shot on a 50mm f/1.4 lens, natural film grain','shot on a 35mm f/2 lens, crisp detail'],
+       id:['diambil dengan lensa 85mm f/1.8, depth of field tipis','diambil dengan lensa 50mm f/1.4, grain film natural','diambil dengan lensa 35mm f/2, detail tajam']},
+ leo:{en:['sharp focus, rich color palette','painterly details, game-ready concept art','dynamic pose, strong silhouette'],
+      id:['fokus tajam, palet warna kaya','detail ala lukisan, concept art siap game','pose dinamis, siluet kuat']},
+ nano:{en:['Preserve identity and every fine detail of the original.','Leave everything else in the original unchanged.','Do not alter facial features, proportions, or any element that was not mentioned.'],
+       id:['Pertahankan identitas dan setiap detail halus dari aslinya.','Biarkan semua bagian lain tetap sama seperti aslinya.','Jangan ubah fitur wajah, proporsi, atau elemen apa pun yang tidak disebut.']},
+ pika:{en:['subtle sparkling particles','smooth slow-motion accent','playful morph transition'],
+       id:['partikel berkilau halus','aksen slow-motion yang halus','transisi morph yang playful']},
+ veoAudio:{en:['Audio: natural ambient sound with a subtle score that matches the mood.','Audio: realistic environmental sound effects and soft background music.','Audio: ambient room tone and gentle foley, no dialogue.'],
+           id:['Audio: suara ambient natural dengan musik latar halus yang sesuai suasana.','Audio: efek suara lingkungan yang realistis dan musik latar lembut.','Audio: suara ruangan ambient dan foley halus, tanpa dialog.']}
+};
+
+/* ---------- prompt engine ---------- */
+const W={
+ en:{defCam:'one smooth camera movement',
+  d5:(i,c)=>'Single shot, 5 seconds. '+i+'. One clear action and one camera movement: '+c+'.',
+  d8:(i,c)=>'Single scene, 8 seconds. It opens by establishing the subject, builds through one clear action, and ends on a defined final moment. '+i+'. Camera: '+c+'.',
+  d12:(i,c)=>'Shot 1 [0-6s]: wide establishing shot. '+i+'. Camera: '+c+'.\nTransition: smooth match cut.\nShot 2 [6-12s]: closer medium shot of the same subject as the action reaches its peak. Camera: slow push-in.',
+  d15:(i,c)=>'Shot 1 [0-5s]: wide establishing shot. '+i+'. Camera: '+c+'.\nShot 2 [5-10s]: medium shot, the main action unfolds. Camera: smooth tracking.\nShot 3 [10-15s]: close-up payoff on the subject\'s face or key detail, settling into a final frame. Camera: slow push-in.'},
+ id:{defCam:'satu gerakan kamera yang halus',
+  d5:(i,c)=>'Satu shot, 5 detik. '+i+'. Satu aksi yang jelas dan satu gerakan kamera: '+c+'.',
+  d8:(i,c)=>'Satu adegan, 8 detik. Dibuka dengan memperkenalkan subjek, berkembang lewat satu aksi yang jelas, dan ditutup dengan momen akhir yang tegas. '+i+'. Kamera: '+c+'.',
+  d12:(i,c)=>'Shot 1 [0-6 dtk]: wide establishing shot. '+i+'. Kamera: '+c+'.\nTransisi: match cut yang halus.\nShot 2 [6-12 dtk]: medium shot lebih dekat pada subjek yang sama saat aksi mencapai puncak. Kamera: push-in perlahan.',
+  d15:(i,c)=>'Shot 1 [0-5 dtk]: wide establishing shot. '+i+'. Kamera: '+c+'.\nShot 2 [5-10 dtk]: medium shot, aksi utama berlangsung. Kamera: tracking halus.\nShot 3 [10-15 dtk]: close-up penutup pada wajah atau detail kunci subjek, berhenti di frame akhir. Kamera: push-in perlahan.'}
+};
+const body=(p,g)=>W[g]['d'+p.dur](p.idea,p.cam||W[g].defCam);
+const look=(p,g)=>{
+  const mood=p.mood?(g==='en'?p.mood+' mood':'suasana '+p.mood):'';
+  const l=[p.style,mood,p.light].filter(Boolean).join(', ');
+  const r=(g==='en'?'Aspect ratio ':'Rasio ')+p.ratio+'.';
+  return l?LB[g].look+': '+l+'. '+r:r;
+};
+const extraLine=(p,g)=>p.extraClean?(LB[g].extra+': '+p.extraClean+'.'):'';
+
+const IMG={
+ natural(p,g,s,t){
+  const L=LB[g];const b=pick(BOOST[t.id==='firefly'?'firefly':'chatgpt'][g],s);
+  return J(g==='en'?'Create a '+p.ratioText+' image: '+p.idea+'.':'Buat gambar '+p.ratioText+': '+p.idea+'.',
+    p.style&&L.style+': '+p.style+'.',p.mood&&L.mood+': '+p.mood+'.',p.light&&L.light+': '+p.light+'.',extraLine(p,g),b);
+ },
+ mj(p,g,s){
+  const raw=p.styleKey==='realistis'?' --style raw':'';
+  const list=[p.idea,p.style,p.mood&&(g==='en'?p.mood+' mood':'suasana '+p.mood),p.light,p.extraClean,pick(BOOST.mj[g],s)].filter(Boolean).join(', ');
+  return list+' --ar '+p.ratio+' --v 7'+raw;
+ },
+ nano(p,g,s){
+  const L=LB[g];
+  const keep=p.extraClean||(g==='en'?"the subject's face, identity, outfit, and pose":'wajah, identitas, pakaian, dan pose subjek');
+  return g==='en'
+   ? J('Edit the provided image: '+p.idea+'.','Keep '+keep+' exactly the same.',pick(BOOST.nano.en,s),p.style&&'Apply '+p.style+'.',p.mood&&L.mood+': '+p.mood+'.',p.light&&L.light+': '+p.light+', matching the original perspective.','Output aspect ratio '+p.ratio+'.')
+   : J('Edit gambar yang diberikan: '+p.idea+'.','Pertahankan '+keep+' persis sama.',pick(BOOST.nano.id,s),p.style&&'Terapkan '+p.style+'.',p.mood&&L.mood+': '+p.mood+'.',p.light&&L.light+': '+p.light+', sesuai perspektif aslinya.','Rasio output '+p.ratio+'.');
+ },
+ flux(p,g,s){
+  const L=LB[g];const real=p.styleKey==='realistis';
+  const lead=g==='en'?(real?'Professional photograph: ':''):(real?'Foto profesional: ':'');
+  const tail=g==='en'?', sharp focus, natural skin and material textures.':', fokus tajam, tekstur kulit dan material yang natural.';
+  return J(lead+p.idea+'.',p.style&&!real&&L.style+': '+p.style+'.',p.mood&&L.mood+': '+p.mood+'.',p.light&&L.light+': '+p.light+'.',p.extraClean&&p.extraClean+'.',
+    pick(BOOST.flux[g],s)+tail,(g==='en'?'Aspect ratio ':'Rasio ')+p.ratio+'.');
+ },
+ ideogram(p,g,s){
+  const L=LB[g];const txt=p.extra||(g==='en'?'[YOUR TEXT]':'[TEKS ANDA]');
+  return g==='en'
+   ? J('A '+p.ratioText+' design: '+p.idea+'.','The text reads exactly: "'+txt+'".','Typography: bold, highly legible, correctly spelled, with clear hierarchy.',p.style&&L.style+': '+p.style+'.',p.mood&&L.mood+': '+p.mood+'.',p.light&&L.light+': '+p.light+'.','Strong contrast between the text and the background.')
+   : J('Desain '+p.ratioText+': '+p.idea+'.','Teks tertulis persis: "'+txt+'".','Tipografi: tebal, sangat terbaca, ejaan benar, dengan hierarki jelas.',p.style&&L.style+': '+p.style+'.',p.mood&&L.mood+': '+p.mood+'.',p.light&&L.light+': '+p.light+'.','Kontras kuat antara teks dan latar belakang.');
+ },
+ leo(p,g,s){
+  const mood=p.mood&&(g==='en'?p.mood+' atmosphere':'atmosfer '+p.mood);
+  const base=[p.idea,p.style,mood,p.light,g==='en'?'concept art, detailed character design':'concept art, desain karakter yang detail',p.extraClean,pick(BOOST.leo[g],s)].filter(Boolean).join(', ');
+  return base+'. '+(g==='en'?'Aspect ratio ':'Rasio ')+p.ratio+'.';
+ }
+};
+
+const VID={
+ veo(p,g,s){
+  const aud=p.extra?(LB[g].audio==='Audio'&&g==='en'?'Audio and dialogue: ':'Audio dan dialog: ')+p.extra:pick(BOOST.veoAudio[g],s);
+  return JN(body(p,g),look(p,g),aud);
+ },
+ kling(p,g,s){
+  return JN(body(p,g),look(p,g),extraLine(p,g),g==='en'?'Smooth, natural character motion; keep the subject consistent throughout.':'Gerakan karakter halus dan natural; subjek tetap konsisten sepanjang video.');
+ },
+ runway(p,g,s){
+  return JN(body(p,g),look(p,g),extraLine(p,g),g==='en'?'Professional commercial-quality footage with stable, clean motion.':'Footage berkualitas komersial profesional dengan gerakan stabil dan bersih.');
+ },
+ seedance(p,g,s){
+  return JN(g==='en'?'Keep the same character, outfit, and environment across every shot.':'Pertahankan karakter, pakaian, dan lingkungan yang sama di setiap shot.',body(p,g),look(p,g),extraLine(p,g));
+ },
+ pika(p,g,s){
+  return JN(body(p,g),look(p,g),extraLine(p,g),(g==='en'?'Creative effect: ':'Efek kreatif: ')+pick(BOOST.pika[g],s)+'.');
+ },
+ luma(p,g,s){
+  const c=p.cam||W[g].defCam;
+  return JN(body(p,g),(g==='en'?'Camera motion is the focus: ':'Gerakan kamera adalah fokus utama: ')+c+(g==='en'?', smooth and deliberate.':', halus dan terarah.'),look(p,g),extraLine(p,g));
+ },
+ heygen(p,g,s){
+  const words={5:12,8:20,12:30,15:37}[p.dur];
+  const script=p.extra||(g==='en'?'[WRITE THE SCRIPT HERE]':'[TULIS NASKAH DI SINI]');
+  const mood=p.mood||(g==='en'?'friendly':'ramah');
+  return g==='en'
+   ? JN('Avatar: a presenter looking directly at the camera, speaking in a '+mood+' tone, waist-up framing.','Setting: '+p.idea+'.','Script (about '+words+' words for '+p.dur+' seconds): "'+script+'"','Gestures: natural hand gestures and a friendly expression.',look(p,g))
+   : JN('Avatar: seorang presenter menatap langsung ke kamera, berbicara dengan nada '+mood+', framing setengah badan.','Latar: '+p.idea+'.','Naskah (sekitar '+words+' kata untuk '+p.dur+' detik): "'+script+'"','Gestur: gerakan tangan natural dan ekspresi ramah.',look(p,g));
+ }
+};
+
+function parts(F,g){
+  const O=(arr,k)=>{const x=arr.find(i=>i.k===k);return(x&&x[g])||'';};
+  const clean=s=>s.trim().replace(/[.!?\s]+$/,'');
+  const idea0=clean(g==='en'?(F.ideaEn.trim()||F.idea):F.idea);
+  const idea=idea0.charAt(0).toUpperCase()+idea0.slice(1);
+  return {idea,style:O(STYLES,F.style),mood:O(MOODS,F.mood),light:O(LIGHTS,F.light),
+    ratio:F.ratio,ratioText:RT[F.ratio][g],cam:O(CAMS,F.cam),extra:F.extra.trim(),extraClean:clean(F.extra),
+    dur:F.dur,styleKey:F.style};
+}
+function build(t,F,g,seed){
+  const p=parts(F,g);
+  return (t.cat==='image'?IMG:VID)[t.fmt](p,g,seed,t);
+}
+function warnings(t,F){
+  const w=[];
+  if(t.cat==='video'&&t.maxDur&&F.dur>t.maxDur){
+    const n=Math.ceil(F.dur/t.maxDur);const per=Math.ceil(F.dur/n);
+    const sizes=[];let left=F.dur;for(let i=0;i<n;i++){const x=Math.min(per,left);sizes.push(x);left-=x;}
+    w.push('Durasi '+F.dur+' detik melebihi batas '+t.durText+' di '+t.name+'. Saran: pecah menjadi '+n+' klip ('+sizes.join(' + ')+' detik), lalu pakai frame terakhir klip sebelumnya sebagai frame awal klip berikutnya agar adegan menyambung.');
+  }
+  if(t.id==='ideogram'&&!F.extra.trim()) w.push('Teks untuk gambar belum diisi. Ideogram paling kuat untuk tulisan, jadi isi kolom teks dan batasi beberapa kata saja.');
+  if(t.id==='heygen'&&!F.extra.trim()) w.push('Naskah avatar belum diisi. Isi kolom naskah agar prompt siap dipakai.');
+  return w;
+}
+
+/* ---------- state ---------- */
+const S={tab:'image',q:'',tag:'all',forms:{},out:null,seed:0,wz:null,cmp:['veo','kling'],hv:'riwayat',demoI:0,demoT:null};
+const getFavT=()=>store.get('ach:favTools',[]);
+const getFavP=()=>store.get('ach:favPrompts',[]);
+const getHist=()=>store.get('ach:history',[]);
+const defaults=t=>({idea:'',ideaEn:'',extra:'',style:'auto',mood:'auto',light:'auto',ratio:t.cat==='video'?'16:9':'1:1',dur:Math.min(8,t.maxDur||8),cam:'auto'});
+
+/* ---------- ui utils ---------- */
+const app=$('#app');
+let toastT;
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1900);}
+async function copy(text,msg){
+  try{await navigator.clipboard.writeText(text);toast(msg||'Prompt disalin');return;}catch(e){}
+  try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast(msg||'Prompt disalin');}
+  catch(e){toast('Gagal menyalin. Tekan lama teks untuk menyalin manual.');}
+}
+function setTheme(th){
+  document.documentElement.setAttribute('data-theme',th);store.set('ach:theme',th);
+  $('#theme').innerHTML=th==='dark'?ic('sun'):ic('moon');
+  $('#theme').setAttribute('aria-label',th==='dark'?'Pindah ke tema terang':'Pindah ke tema gelap');
+}
+const fmtTime=ts=>{try{return new Date(ts).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});}catch(e){return new Date(ts).toISOString();}};
+const swatch=t=>'<span class="sw" style="--a:'+t.accent+'" aria-hidden="true">'+esc(t.ini)+'</span>';
+
+/* ---------- views: home ---------- */
+const DEMO=[
+ {tool:'Midjourney',accent:'#9A8CFF',text:'orange cat sipping coffee in a rainy cafe, cinematic, warm golden light --ar 16:9 --v 7',note:'Daftar kata kunci dipisah koma, diakhiri parameter.'},
+ {tool:'Ideogram',accent:'#FF7AA8',text:'A 4:5 poster design: an orange cat sipping coffee in a rainy cafe.\nThe text reads exactly: "RAIN & COFFEE".\nTypography: bold, highly legible.',note:'Teks yang harus muncul ditulis dalam tanda kutip.'},
+ {tool:'Google Veo 3.1',accent:'#6EA8FF',text:'Single scene, 8 seconds. An orange cat sips coffee in a rainy cafe. Camera: slow dolly-in.\nAudio: rain on the window, soft jazz.',note:'Ada durasi, arahan kamera, dan audio.'}
+];
+function demoShow(i){
+  S.demoI=i;const d=DEMO[i];
+  const box=$('.demo');if(!box)return;
+  box.style.setProperty('--da',d.accent);
+  $$('.demo-tabs button').forEach((b,j)=>b.setAttribute('aria-selected',j===i?'true':'false'));
+  const pre=$('#demo-pre');pre.textContent=d.text;
+  pre.style.animation='none';void pre.offsetWidth;pre.style.animation='';
+  $('#demo-note').textContent=d.note;
+}
+function demoStart(){
+  clearInterval(S.demoT);
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  S.demoT=setInterval(()=>demoShow((S.demoI+1)%DEMO.length),4200);
+}
+function viewHome(){
+  app.innerHTML=
+  '<section class="hero" aria-labelledby="h1">'+
+   '<div><h1 id="h1">Satu ide, empat belas cara menulisnya.</h1>'+
+   '<p class="sub">Pilih AI generator gambar atau video yang cocok, lalu susun prompt dalam gaya yang dimengerti tiap tool.</p>'+
+   '<div class="cta"><a class="btn primary" href="#tools" data-scroll="tools">'+ic('sparkles',18)+'Mulai buat prompt</a><a class="btn" href="#/rekomendasi">Bantu pilihkan tool</a></div></div>'+
+   '<div class="demo" aria-label="Contoh prompt untuk satu ide">'+
+     '<div class="demo-tabs" role="tablist" aria-label="Contoh gaya prompt">'+DEMO.map((d,i)=>'<button type="button" role="tab" data-demo="'+i+'" aria-selected="'+(i===0)+'">'+esc(d.tool)+'</button>').join('')+'</div>'+
+     '<p class="demo-idea">Ide: <b>Kucing oranye minum kopi di kafe saat hujan</b></p>'+
+     '<pre id="demo-pre" aria-live="off"></pre><p class="demo-note" id="demo-note"></p>'+
+   '</div>'+
+  '</section>'+
+  '<section id="tools" aria-labelledby="th">'+
+   '<div class="sec-h"><h2 id="th">Pilih tool</h2></div>'+
+   '<div class="tabs" role="tablist" aria-label="Kategori">'+
+     '<button type="button" role="tab" data-tab="image" aria-selected="'+(S.tab==='image')+'">'+ic('image',18)+'Image Generator</button>'+
+     '<button type="button" role="tab" data-tab="video" aria-selected="'+(S.tab==='video')+'">'+ic('video',18)+'Video Generator</button>'+
+   '</div>'+
+   '<div class="search">'+ic('search',18)+'<input type="search" id="q" placeholder="Cari tool atau kebutuhan, mis. poster" aria-label="Cari tool atau kebutuhan" value="'+esc(S.q)+'"></div>'+
+   '<div class="chips" id="chips" role="group" aria-label="Filter kebutuhan"></div>'+
+   '<div class="grid" id="grid" aria-live="polite"></div>'+
+   '<p class="note">Batas durasi dan fitur tiap tool bisa berubah. Cek situs resmi untuk info terbaru.</p>'+
+  '</section>';
+  $('#q').addEventListener('input',e=>{S.q=e.target.value;updateHome();});
+  demoShow(0);demoStart();
+  $('.demo').addEventListener('mouseenter',()=>clearInterval(S.demoT));
+  $('.demo').addEventListener('mouseleave',demoStart);
+  updateHome();
+}
+function cardHtml(t){
+  const fav=getFavT().includes(t.id);
+  return '<article class="card" style="--a:'+t.accent+'">'+
+   '<div class="card-top">'+swatch(t)+'<div class="ct"><h3>'+esc(t.name)+'</h3><span class="badge">'+ic(t.cat==='image'?'image':'video',13)+(t.cat==='image'?'Gambar':'Video')+'</span></div>'+
+   '<button type="button" class="icon-btn fav" data-fav="'+t.id+'" aria-pressed="'+fav+'" aria-label="Favoritkan '+esc(t.name)+'">'+ic('heart')+'</button></div>'+
+   '<p class="tg">'+esc(t.tagline)+'</p>'+
+   '<p class="sn">Gaya prompt: '+esc(t.styleNote)+'</p>'+
+   '<div class="card-actions"><a class="btn primary" href="#/create/'+t.id+'">'+ic('sparkles',18)+'Buat Prompt</a>'+
+   '<a class="btn ghost" href="'+t.url+'" target="_blank" rel="noopener noreferrer">Buka Website '+ic('external',16)+'</a></div></article>';
+}
+function updateHome(){
+  const list=TOOLS.filter(t=>t.cat===S.tab);
+  const avail=FILTERS.filter(f=>list.some(t=>t.tags.includes(f.k)));
+  if(S.tag!=='all'&&!avail.some(f=>f.k===S.tag))S.tag='all';
+  $('#chips').innerHTML='<button type="button" class="chip" data-chip="all" aria-pressed="'+(S.tag==='all')+'">Semua</button>'+
+    avail.map(f=>'<button type="button" class="chip" data-chip="'+f.k+'" aria-pressed="'+(S.tag===f.k)+'">'+esc(f.l)+'</button>').join('');
+  const q=S.q.trim().toLowerCase();
+  const res=list.filter(t=>{
+    if(S.tag!=='all'&&!t.tags.includes(S.tag))return false;
+    if(!q)return true;
+    const hay=(t.name+' '+t.tagline+' '+t.bestFor+' '+t.styleNote+' '+t.tags.map(k=>(FILTERS.find(f=>f.k===k)||{}).l).join(' ')).toLowerCase();
+    return q.split(/\s+/).every(w=>hay.includes(w));
+  });
+  $('#grid').innerHTML=res.length?res.map(cardHtml).join(''):'<div class="empty">Belum ada tool yang cocok. Coba kata kunci lain atau pilih filter “Semua”.</div>';
+  $$('[data-tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===S.tab?'true':'false'));
+}
+
+/* ---------- views: builder ---------- */
+function segHtml(name,items,cur,labelFn){
+  return '<div class="seg" role="radiogroup" aria-label="'+name+'">'+items.map(v=>'<button type="button" role="radio" data-opt="'+name+'" data-val="'+esc(v)+'" aria-checked="'+(String(v)===String(cur))+'">'+esc(labelFn?labelFn(v):v)+'</button>').join('')+'</div>';
+}
+function selHtml(id,list,cur){
+  return '<select id="'+id+'">'+list.map(o=>'<option value="'+o.k+'"'+(o.k===cur?' selected':'')+'>'+esc(o.l)+'</option>').join('')+'</select>';
+}
+function viewBuilder(t){
+  const F=S.forms[t.id]||(S.forms[t.id]=defaults(t));
+  const isV=t.cat==='video';
+  app.innerHTML=
+  '<a class="back" href="#/">'+ic('back',18)+'Semua tool</a>'+
+  '<div class="b-head" style="--a:'+t.accent+'">'+swatch(t)+'<div><h1>'+esc(t.name)+'</h1><p>'+esc(t.tagline)+'</p></div></div>'+
+  '<details class="tips"><summary>Tips prompt untuk '+esc(t.name)+'</summary><ul>'+t.tips.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></details>'+
+  '<div class="b-grid">'+
+   '<form class="panel" id="bf" onsubmit="return false" novalidate>'+
+     '<div class="field"><label for="f-idea">Ide utama</label><textarea id="f-idea" placeholder="Tulis idemu, mis. kucing oranye minum kopi di kafe saat hujan">'+esc(F.idea)+'</textarea></div>'+
+     '<div class="field"><label for="f-ideaEn">Versi Inggris ide (opsional)</label><textarea id="f-ideaEn" style="min-height:76px" placeholder="mis. an orange cat sipping coffee in a rainy cafe">'+esc(F.ideaEn)+'</textarea><p class="hint">Jika diisi, dipakai untuk prompt Inggris. Jika kosong, ide Indonesia dipakai apa adanya.</p></div>'+
+     '<div class="field"><label for="f-extra">'+esc(t.extra.label)+'</label><textarea id="f-extra" style="min-height:76px" placeholder="'+esc(t.extra.ph)+'">'+esc(F.extra)+'</textarea><p class="hint" id="extra-hint"></p></div>'+
+     '<div class="field"><span class="lbl" id="l-style">Gaya</span><div class="chips" style="margin-top:0" role="radiogroup" aria-labelledby="l-style">'+STYLES.map(o=>'<button type="button" role="radio" class="chip" data-opt="style" data-val="'+o.k+'" aria-checked="'+(F.style===o.k)+'">'+esc(o.l)+'</button>').join('')+'</div></div>'+
+     '<div class="two"><div class="field"><label for="f-mood">Mood</label>'+selHtml('f-mood',MOODS,F.mood)+'</div><div class="field"><label for="f-light">Pencahayaan</label>'+selHtml('f-light',LIGHTS,F.light)+'</div></div>'+
+     '<div class="field"><span class="lbl">Rasio</span>'+segHtml('ratio',RATIOS,F.ratio)+'</div>'+
+     (isV?'<div class="field"><span class="lbl">Durasi</span>'+segHtml('dur',DURS,F.dur,v=>v+' detik')+'<p class="hint" id="dur-hint"></p></div>'+
+          '<div class="field"><label for="f-cam">Gerakan kamera</label>'+selHtml('f-cam',CAMS,F.cam)+'</div>':'')+
+     '<button type="button" class="btn primary big" data-act="gen">'+ic('sparkles',20)+'Buat prompt</button>'+
+   '</form>'+
+   '<div class="panel b-out" id="out" aria-live="polite"></div>'+
+  '</div>'+
+  (isV?'<p class="note">Batas durasi per klip bersifat perkiraan dan bisa berubah. Cek situs resmi '+esc(t.name)+' untuk info terbaru.</p>':'');
+  const bind=(id,key)=>$(id).addEventListener('input',e=>{F[key]=e.target.value;});
+  bind('#f-idea','idea');bind('#f-ideaEn','ideaEn');
+  $('#f-extra').addEventListener('input',e=>{F.extra=e.target.value;});
+  $('#f-mood').addEventListener('change',e=>{F.mood=e.target.value;});
+  $('#f-light').addEventListener('change',e=>{F.light=e.target.value;});
+  if(isV)$('#f-cam').addEventListener('change',e=>{F.cam=e.target.value;});
+  updateHints(t);renderOut(t);
+}
+function updateHints(t){
+  const F=S.forms[t.id];
+  const eh=$('#extra-hint');
+  if(eh){
+    if(t.id==='heygen'){const w={5:12,8:20,12:30,15:37}[F.dur];eh.textContent='Naskah ideal sekitar '+w+' kata untuk '+F.dur+' detik.';}
+    else if(t.id==='veo')eh.textContent='Tulis dialog dalam tanda kutip dan sebut siapa yang bicara.';
+    else if(t.id==='ideogram')eh.textContent='Tulis persis, huruf besar kecil ikut terbaca. Batasi beberapa kata.';
+    else eh.textContent='';
+  }
+  const dh=$('#dur-hint');
+  if(dh){
+    const txt={5:'Satu adegan, satu aksi, satu gerakan kamera.',8:'Satu adegan dengan awal dan akhir aksi yang jelas.',12:'Dua shot dengan transisi.',15:'Tiga shot dengan timeline per detik.'}[F.dur];
+    dh.textContent=txt+(t.maxDur&&F.dur>t.maxDur?' Melebihi batas '+t.name+'.':'');
+  }
+}
+function generate(t){
+  const F=S.forms[t.id];
+  if(!F.idea.trim()){toast('Isi ide utama dulu');$('#f-idea').focus();return;}
+  S.seed=(S.seed||0)+1+Math.floor(Math.random()*5);
+  const en=build(t,F,'en',S.seed),idt=build(t,F,'id',S.seed);
+  S.out={tool:t.id,en,id:idt,warns:warnings(t,F),dur:F.dur};
+  const h=getHist().filter(x=>x.en!==en);
+  h.unshift({id:uid(),toolId:t.id,en,idt,ts:Date.now(),dur:t.cat==='video'?F.dur:null});
+  store.set('ach:history',h.slice(0,50));
+  renderOut(t);
+  const o=$('#out');if(o&&window.innerWidth<900)o.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderOut(t){
+  const box=$('#out');if(!box)return;
+  if(!S.out||S.out.tool!==t.id){box.innerHTML='<div class="empty">Isi ide, lalu tekan “Buat prompt”. Hasilnya muncul di sini.</div>';return;}
+  const o=S.out;const saved=getFavP().some(x=>x.en===o.en);
+  box.innerHTML=
+   o.warns.map(w=>'<div class="warn" role="note">'+ic('alert',20)+'<div>'+esc(w)+'</div></div>').join('')+
+   '<div class="pbox"><div class="plabel">Prompt final (Inggris)</div><pre>'+esc(o.en)+'</pre></div>'+
+   '<div class="pbox"><div class="plabel">Terjemahan Indonesia</div><pre>'+esc(o.id)+'</pre></div>'+
+   '<div class="row"><button type="button" class="btn primary" data-act="copy-en">'+ic('copy',18)+'Salin prompt</button>'+
+   '<button type="button" class="btn" data-act="copy-id">'+ic('copy',18)+'Salin Indonesia</button></div>'+
+   '<div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="regen">'+ic('refresh',18)+'Variasi lain</button>'+
+   '<button type="button" class="btn" data-act="save" aria-pressed="'+saved+'">'+ic('heart',18)+(saved?'Tersimpan':'Simpan ke favorit')+'</button></div>'+
+   '<p class="hint" style="margin-top:12px">Tempel prompt Inggris ke '+esc(t.name)+'. Terjemahan hanya untuk membantumu memeriksa isinya.</p>';
+}
+
+/* ---------- views: wizard ---------- */
+const GOALS=[
+ {k:'foto',l:'Foto realistis',cat:'image',s:{flux:3,chatgpt:2,'nano-banana':1,firefly:1}},
+ {k:'seni',l:'Anime, fantasi, atau artwork',cat:'image',s:{midjourney:3,leonardo:2,chatgpt:1}},
+ {k:'teks',l:'Poster atau logo dengan tulisan',cat:'image',s:{ideogram:3,chatgpt:2,firefly:1}},
+ {k:'edit',l:'Edit foto atau jaga karakter tetap sama',cat:'image',s:{'nano-banana':3,chatgpt:2,firefly:1}},
+ {k:'konsep',l:'Karakter game atau concept art',cat:'image',s:{leonardo:3,midjourney:2}},
+ {k:'sinema',l:'Video sinematik',cat:'video',s:{kling:3,veo:2,luma:2,runway:1}},
+ {k:'iklan',l:'Video iklan atau produk',cat:'video',s:{runway:3,kling:2,veo:1,heygen:1}},
+ {k:'avatar',l:'Orang berbicara (avatar)',cat:'video',s:{heygen:3,veo:1}},
+ {k:'efek',l:'Video pendek dengan efek kreatif',cat:'video',s:{pika:3,luma:1}},
+ {k:'panjang',l:'Adegan panjang multi-shot',cat:'video',s:{seedance:3,kling:2}}
+];
+function viewWizard(){
+  if(!S.wz)S.wz={step:0,goal:null,mod:null,com:null};
+  renderWizard();
+}
+function wzResult(){
+  const z=S.wz;const g=GOALS.find(x=>x.k===z.goal);
+  const sc={};TOOLS.filter(t=>t.cat===g.cat).forEach(t=>sc[t.id]=(g.s[t.id]||0));
+  if(z.mod==='yes'){
+    if(g.cat==='image'){sc.ideogram+=2;sc.chatgpt+=1;}
+    else{sc.veo+=3;sc.heygen+=2;}
+  }
+  if(z.com==='yes'){if(sc.firefly!==undefined)sc.firefly+=2;if(sc.runway!==undefined)sc.runway+=1;if(sc.heygen!==undefined)sc.heygen+=1;}
+  return Object.keys(sc).sort((a,b)=>sc[b]-sc[a]).slice(0,3).map(id=>TOOL(id));
+}
+function renderWizard(){
+  const z=S.wz;
+  const prog='<div class="prog" aria-hidden="true">'+[0,1,2].map(i=>'<i class="'+(i<=Math.min(z.step,2)||z.step>2?'on':'')+'"></i>').join('')+'</div>';
+  let h='<div class="wz">'+prog;
+  if(z.step===0){
+    h+='<p class="hint">Pertanyaan 1 dari 3</p><h1>Mau buat apa?</h1><div class="opts">'+
+      GOALS.map(g=>'<button type="button" class="opt" data-wz="goal:'+g.k+'">'+ic(g.cat==='image'?'image':'video',22)+'<span>'+esc(g.l)+'<small>'+(g.cat==='image'?'Gambar':'Video')+'</small></span></button>').join('')+'</div>';
+  }else if(z.step===1){
+    const g=GOALS.find(x=>x.k===z.goal);
+    h+='<p class="hint">Pertanyaan 2 dari 3</p><h1>Perlu teks/suara?</h1><div class="opts">'+
+      '<button type="button" class="opt" data-wz="mod:no">Tidak perlu</button>'+
+      '<button type="button" class="opt" data-wz="mod:yes">'+(g.cat==='image'?'Ya, ada tulisan di dalam gambar':'Ya, perlu suara atau dialog')+'</button></div>';
+  }else if(z.step===2){
+    h+='<p class="hint">Pertanyaan 3 dari 3</p><h1>Untuk komersial?</h1><div class="opts">'+
+      '<button type="button" class="opt" data-wz="com:yes">Ya<small>Bisnis, iklan, atau dijual</small></button>'+
+      '<button type="button" class="opt" data-wz="com:no">Tidak<small>Pribadi atau hobi</small></button>'+
+      '<button type="button" class="opt" data-wz="com:unsure">Belum tahu</button></div>';
+  }else{
+    const r=wzResult();const g=GOALS.find(x=>x.k===z.goal);
+    h+='<h1>Rekomendasi untukmu</h1><div class="res">'+r.map((t,i)=>{
+      let why=t.bestFor+'.';
+      if(i===0&&z.mod==='yes'&&t.id==='veo')why+=' Mendukung suara dan dialog.';
+      if(i===0&&z.mod==='yes'&&t.id==='ideogram')why+=' Paling andal untuk teks di dalam gambar.';
+      if(z.com==='yes'&&t.id==='firefly')why+=' Dirancang untuk kebutuhan komersial.';
+      return '<article class="card'+(i===0?' top-pick':'')+'" style="--a:'+t.accent+'"><div class="card-top">'+swatch(t)+'<div class="ct"><h3>'+esc(t.name)+'</h3><span class="badge">'+(i===0?'Paling cocok':'Alternatif')+'</span></div></div>'+
+        '<p class="why">'+esc(why)+'</p><div class="card-actions"><a class="btn primary" href="#/create/'+t.id+'">'+ic('sparkles',18)+'Buat Prompt</a><a class="btn ghost" href="'+t.url+'" target="_blank" rel="noopener noreferrer">Buka Website '+ic('external',16)+'</a></div></article>';
+    }).join('')+'</div><div class="row" style="margin-top:16px"><button type="button" class="btn" data-wz="reset">Ulangi pertanyaan</button></div>';
+  }
+  if(z.step>0&&z.step<=2)h+='<div class="row" style="margin-top:14px"><button type="button" class="btn ghost" data-wz="back">'+ic('back',18)+'Kembali</button></div>';
+  h+='</div>';
+  app.innerHTML=h;
+}
+
+/* ---------- views: compare ---------- */
+function viewCompare(){
+  const sel=S.cmp.map(TOOL);
+  const chips=['image','video'].map(c=>'<p class="hint" style="margin:14px 0 6px">'+(c==='image'?'Image Generator':'Video Generator')+'</p><div class="chips" style="margin-top:0">'+
+    TOOLS.filter(t=>t.cat===c).map(t=>'<button type="button" class="chip" data-cmp="'+t.id+'" aria-pressed="'+S.cmp.includes(t.id)+'">'+esc(t.name)+'</button>').join('')+'</div>').join('');
+  const row=(label,fn)=>'<tr><th scope="row">'+label+'</th>'+sel.map(t=>'<td>'+fn(t)+'</td>').join('')+'</tr>';
+  const durCell=t=>{
+    if(t.cat==='image')return 'Tidak berlaku';
+    return '<div>'+esc(t.durText)+'</div><div style="margin-top:6px">'+DURS.map(d=>'<span class="dur '+(d<=t.maxDur?'ok':'no')+'" title="'+(d<=t.maxDur?'Muat dalam satu klip':'Perlu dipecah')+'">'+d+' dtk</span>').join('')+'</div>';
+  };
+  let table='<div class="empty" style="margin-top:16px">Pilih minimal 2 tool untuk dibandingkan.</div>';
+  if(sel.length>=2){
+    table='<div class="tbl-wrap"><table><caption class="hint" style="text-align:left;padding:10px 14px;caption-side:bottom">Durasi dicoret berarti perlu dipecah menjadi beberapa klip.</caption><thead><tr><th scope="col"><span class="hint">Tool</span></th>'+sel.map(t=>'<th scope="col"><span class="dot" style="background:'+t.accent+'"></span>'+esc(t.name)+'</th>').join('')+'</tr></thead><tbody>'+
+     row('Kategori',t=>t.cat==='image'?'Gambar':'Video')+
+     row('Cocok untuk',t=>esc(t.bestFor))+
+     row('Kelebihan',t=>'<ul>'+t.pros.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>')+
+     row('Durasi',durCell)+
+     row('Gaya prompt',t=>esc(t.styleNote))+
+     row('Situs',t=>'<a href="'+t.url+'" target="_blank" rel="noopener noreferrer">Buka</a>')+
+     row('Aksi',t=>'<a class="btn primary" style="min-height:44px" href="#/create/'+t.id+'">Buat Prompt</a>')+
+     '</tbody></table></div>';
+  }
+  app.innerHTML='<div class="sec-h" style="margin-top:22px"><h2>Bandingkan tool</h2></div><p class="hint">Pilih 2 sampai 3 tool.</p>'+chips+table+'<p class="note">Batas durasi dan fitur bisa berubah. Cek situs resmi untuk info terbaru.</p>';
+}
+
+/* ---------- views: history ---------- */
+function viewHistory(){
+  const tabs=[['riwayat','Riwayat'],['prompt','Prompt favorit'],['tool','Tool favorit']];
+  let h='<div class="sec-h" style="margin-top:22px"><h2>Riwayat &amp; Favorit</h2></div>'+
+   '<div class="tabs" role="tablist">'+tabs.map(x=>'<button type="button" role="tab" data-hv="'+x[0]+'" aria-selected="'+(S.hv===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
+  const item=(it,kind)=>{
+    const t=TOOL(it.toolId);if(!t)return '';
+    return '<article class="hitem" style="border-left:5px solid '+t.accent+'"><div class="hmeta"><strong style="color:var(--text)">'+esc(t.name)+(it.dur?' · '+it.dur+' detik':'')+'</strong><span>'+esc(fmtTime(it.ts))+'</span></div>'+
+     '<pre>'+esc(it.en)+'</pre><div class="row"><button type="button" class="btn" data-hcopy="'+it.id+'" data-kind="'+kind+'">'+ic('copy',18)+'Salin</button>'+
+     '<a class="btn" href="#/create/'+t.id+'">Buka tool</a>'+
+     '<button type="button" class="btn ghost" data-del="'+kind+':'+it.id+'" aria-label="Hapus">'+ic('trash',18)+'Hapus</button></div></article>';
+  };
+  if(S.hv==='riwayat'){
+    const l=getHist();
+    h+=l.length?l.map(i=>item(i,'h')).join('')+'<div class="row" style="margin-top:16px"><button type="button" class="btn" data-del="h:all">'+ic('trash',18)+'Hapus semua riwayat</button></div>':'<div class="empty" style="margin-top:16px">Belum ada riwayat. Buat prompt pertamamu, nanti tersimpan di sini (hanya di perangkat ini).</div>';
+  }else if(S.hv==='prompt'){
+    const l=getFavP();
+    h+=l.length?l.map(i=>item(i,'p')).join(''):'<div class="empty" style="margin-top:16px">Belum ada prompt favorit. Tekan “Simpan ke favorit” setelah membuat prompt.</div>';
+  }else{
+    const l=getFavT().map(TOOL).filter(Boolean);
+    h+=l.length?'<div class="grid">'+l.map(cardHtml).join('')+'</div>':'<div class="empty" style="margin-top:16px">Belum ada tool favorit. Tekan ikon hati di kartu tool.</div>';
+  }
+  app.innerHTML=h;
+}
+
+/* ---------- router ---------- */
+function route(){
+  clearInterval(S.demoT);
+  const h=location.hash.replace(/^#\/?/,'');
+  const [a,b]=h.split('/');
+  const nav=a==='create'||!a||a==='tools'?'home':a;
+  $$('[data-nav]').forEach(el=>el.setAttribute('aria-current',el.dataset.nav===nav?'page':'false'));
+  if(a==='create'&&TOOL(b))viewBuilder(TOOL(b));
+  else if(a==='rekomendasi')viewWizard();
+  else if(a==='bandingkan')viewCompare();
+  else if(a==='riwayat')viewHistory();
+  else viewHome();
+  window.scrollTo(0,0);
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act],[data-tab],[data-chip],[data-fav],[data-opt],[data-wz],[data-cmp],[data-hv],[data-demo],[data-del],[data-hcopy],[data-scroll]');
+  if(!el)return;
+  const d=el.dataset;
+  if(d.scroll){e.preventDefault();const t=document.getElementById(d.scroll);if(t)t.scrollIntoView({behavior:'smooth'});return;}
+  if(d.demo!==undefined){clearInterval(S.demoT);demoShow(+d.demo);return;}
+  if(d.tab){S.tab=d.tab;S.tag='all';updateHome();return;}
+  if(d.chip){S.tag=d.chip;updateHome();return;}
+  if(d.fav){
+    let f=getFavT();const on=f.includes(d.fav);
+    f=on?f.filter(x=>x!==d.fav):f.concat(d.fav);store.set('ach:favTools',f);
+    $$('[data-fav="'+d.fav+'"]').forEach(b=>b.setAttribute('aria-pressed',String(!on)));
+    toast(on?'Dihapus dari favorit':'Tool disimpan ke favorit');
+    if(S.hv==='tool'&&location.hash.indexOf('riwayat')>-1)viewHistory();
+    return;
+  }
+  if(d.opt){
+    const id=(location.hash.split('/')[2])||'';const t=TOOL(id);if(!t)return;
+    const F=S.forms[t.id];
+    F[d.opt]=d.opt==='dur'?+d.val:d.val;
+    $$('[data-opt="'+d.opt+'"]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.val===d.val)));
+    updateHints(t);return;
+  }
+  if(d.act){
+    const t=TOOL((location.hash.split('/')[2])||'');if(!t)return;
+    if(d.act==='gen'||d.act==='regen'){generate(t);return;}
+    if(!S.out)return;
+    if(d.act==='copy-en'){copy(S.out.en,'Prompt Inggris disalin');return;}
+    if(d.act==='copy-id'){copy(S.out.id,'Terjemahan disalin');return;}
+    if(d.act==='save'){
+      let f=getFavP();const ex=f.find(x=>x.en===S.out.en);
+      if(ex){f=f.filter(x=>x.en!==S.out.en);toast('Dihapus dari favorit');}
+      else{f.unshift({id:uid(),toolId:t.id,en:S.out.en,idt:S.out.id,ts:Date.now(),dur:t.cat==='video'?S.out.dur:null});toast('Prompt disimpan ke favorit');}
+      store.set('ach:favPrompts',f.slice(0,100));renderOut(t);return;
+    }
+  }
+  if(d.wz){
+    const z=S.wz;const [k,v]=d.wz.split(':');
+    if(d.wz==='reset'){S.wz={step:0,goal:null,mod:null,com:null};}
+    else if(d.wz==='back'){z.step=Math.max(0,z.step-1);}
+    else if(k==='goal'){z.goal=v;z.step=1;}
+    else if(k==='mod'){z.mod=v;z.step=2;}
+    else if(k==='com'){z.com=v;z.step=3;}
+    renderWizard();window.scrollTo(0,0);return;
+  }
+  if(d.cmp){
+    let c=S.cmp;
+    if(c.includes(d.cmp))c=c.filter(x=>x!==d.cmp);
+    else{if(c.length>=3){toast('Maksimal 3 tool');return;}c=c.concat(d.cmp);}
+    S.cmp=c;viewCompare();return;
+  }
+  if(d.hv){S.hv=d.hv;viewHistory();return;}
+  if(d.hcopy){
+    const l=d.kind==='h'?getHist():getFavP();const it=l.find(x=>x.id===d.hcopy);
+    if(it)copy(it.en,'Prompt disalin');return;
+  }
+  if(d.del){
+    const [kind,id]=d.del.split(':');
+    if(kind==='h'){store.set('ach:history',id==='all'?[]:getHist().filter(x=>x.id!==id));}
+    else{store.set('ach:favPrompts',getFavP().filter(x=>x.id!==id));}
+    toast('Dihapus');viewHistory();return;
+  }
+});
+
+/* ---------- init ---------- */
+$('#logo-mark').innerHTML=ic('sparkles',20);
+$('#bnav').innerHTML=
+ '<a href="#/" data-nav="home">'+ic('home')+'<span>Beranda</span></a>'+
+ '<a href="#/rekomendasi" data-nav="rekomendasi">'+ic('sparkles')+'<span>Rekomendasi</span></a>'+
+ '<a href="#/bandingkan" data-nav="bandingkan">'+ic('columns')+'<span>Bandingkan</span></a>'+
+ '<a href="#/riwayat" data-nav="riwayat">'+ic('clock')+'<span>Riwayat</span></a>';
+setTheme(store.get('ach:theme','dark')==='light'?'light':'dark');
+$('#theme').addEventListener('click',()=>setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+window.addEventListener('hashchange',route);
+route();
+})();
+</script>
+</body>
+</html>
